@@ -2,34 +2,67 @@
 // 1. SPA NAVIGATION LOGIC
 // ==========================================
 function switchView(viewId) {
-    // Hide all views
-    document.getElementById('home-view').classList.add('hidden-view');
-    document.getElementById('home-view').classList.remove('active-view');
-    
-    document.getElementById('player-view').classList.add('hidden-view');
-    document.getElementById('player-view').classList.remove('active-view', 'player-body'); 
-    
-    document.getElementById('vlog-view').classList.add('hidden-view');
-    document.getElementById('vlog-view').classList.remove('active-view', 'player-body');
+    const views = ['home-view', 'player-view', 'vlog-view', 'library-view'];
+    views.forEach(id => {
+        const el = document.getElementById(id);
+        if(el) {
+            el.classList.add('hidden-view');
+            el.classList.remove('active-view', 'player-body', 'vibe-body');
+        }
+    });
 
-    // Show selected view
     const view = document.getElementById(viewId);
-    view.classList.remove('hidden-view');
-    view.classList.add('active-view');
+    if (view) {
+        view.classList.remove('hidden-view');
+        view.classList.add('active-view');
 
-    // Apply special centering class for Player/Vlog
-    if (viewId === 'player-view' || viewId === 'vlog-view') {
-        view.classList.add('player-body');
+        if (viewId === 'player-view' || viewId === 'vlog-view') {
+            view.classList.add('player-body');
+        }
+        if (viewId === 'library-view') {
+            view.classList.add('vibe-body');
+        }
     }
 
-    // Init Vlog if needed
-    if (viewId === 'vlog-view') {
-        initializeVlog();
+    if (viewId === 'vlog-view') initializeVlog();
+}
+
+// ==========================================
+// 2. LIBRARY / PDF READER LOGIC
+// ==========================================
+function openReader(pdfPath) {
+    const overlay = document.getElementById('pdf-reader-overlay');
+    const frame = document.getElementById('pdf-frame');
+    
+    if(overlay && frame) {
+        let params = "";
+
+        // LOGIC: Custom Zoom for Book 01 vs Others
+        if (pdfPath.includes('01-book')) {
+            // Book 01: 10% zoom out (90% scale)
+            params = "#page=1&zoom=90&pagemode=none&scrollbar=0&toolbar=0&navpanes=0";
+        } else {
+            // All others: 50% zoom out (50% scale)
+            params = "#page=1&zoom=50&pagemode=none&scrollbar=0&toolbar=0&navpanes=0";
+        }
+        
+        frame.src = pdfPath + params; 
+        overlay.classList.remove('hidden-view'); 
+    }
+}
+
+function closeReader() {
+    const overlay = document.getElementById('pdf-reader-overlay');
+    const frame = document.getElementById('pdf-frame');
+    
+    if(overlay && frame) {
+        overlay.classList.add('hidden-view'); 
+        frame.src = ""; 
     }
 }
 
 // ==========================================
-// 2. ALIEN CANVAS CLOCK LOGIC
+// 3. ALIEN CANVAS CLOCK LOGIC
 // ==========================================
 (function () {
     const canvas = document.getElementById('digital-clock');
@@ -162,7 +195,7 @@ function switchView(viewId) {
 
 
 // ==========================================
-// 3. IMAGE INTERACTIVITY
+// 4. IMAGE INTERACTIVITY
 // ==========================================
 const flashImages = [
     'images/flash-01.jpg', 'images/flash-02.jpg', 'images/flash-03.jpg', 'images/flash-04.jpg', 
@@ -192,6 +225,7 @@ const flashImages = [
     'images/flash-97.jpg', 'images/flash-98.jpg'
 ];
 
+// Text Color Hover
 const vibeWorld = document.querySelector('.sub-title');
 if (vibeWorld) {
     vibeWorld.addEventListener('mouseover', function() {
@@ -202,6 +236,7 @@ if (vibeWorld) {
     });
 }
 
+// Image Flash Logic
 const mainImage = document.querySelector('.hero-image-right img'); 
 let flashInterval; 
 let flashTimeout;
@@ -234,7 +269,7 @@ if (mainImage) {
                 document.body.classList.remove('shake');
             }
             shouldShake = !shouldShake;
-        }, 100); // 100ms Speed
+        }, 100); 
 
         flashTimeout = setTimeout(function() {
             resetFlash();
@@ -246,7 +281,7 @@ if (mainImage) {
 
 
 // ==========================================
-// 4. AUDIO PLAYER LOGIC
+// 5. AUDIO PLAYER LOGIC
 // ==========================================
 const playlist = [
     { name: "Track 01", artist: "", src: "audio/01-track.wav" },
@@ -354,13 +389,12 @@ function initializePlayer() {
 }
 
 // ==========================================
-// 5. VLOG PAGE LOGIC (Read-Only Fetch)
+// 6. VLOG PAGE LOGIC (Read-Only Fetch)
 // ==========================================
 function initializeVlog() {
     const feedContainer = document.getElementById('vlog-feed');
     if (!feedContainer) return; 
 
-    // Fetch the JSON file
     fetch('content/vlogs.json')
         .then(response => {
             if (!response.ok) throw new Error("Signal lost...");
@@ -371,11 +405,9 @@ function initializeVlog() {
                 feedContainer.innerHTML = `<div style="color: #555; font-family: 'Inter'; margin-top: 20px;">[ No entries found in the archives. ]</div>`;
                 return;
             }
-
             feedContainer.innerHTML = '';
             vlogs.forEach(vlog => {
-                // Correct date parsing to avoid timezone shifts
-                const dateObj = new Date(vlog.date + "T12:00:00"); 
+                const dateObj = new Date(vlog.date + "T12:00:00");
                 const dateStr = dateObj.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 
                 const entryHTML = `
@@ -397,12 +429,12 @@ function initializeVlog() {
 
 // --- INITIALIZE ALL ---
 document.addEventListener('DOMContentLoaded', () => {
-    // Preload Images
+    // Preload
     for (let i = 0; i < flashImages.length; i++) {
         let img = new Image();
         img.src = flashImages[i];
     }
 
-    // Init Player (persists in DOM)
+    // Init Player Logic (It persists in the DOM now)
     initializePlayer();
 });

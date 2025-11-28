@@ -15,7 +15,6 @@
 
     <section id="home-view" class="active-view">
         <div class="hero-section">
-            
             <div class="hero-content-left">
                 <div class="title-block">
                     <h1 class="main-title">Hell Low,</h1>
@@ -28,11 +27,14 @@
                 </div>
 
                 <div class="footer-link-container">
-                    <a href="#" onclick="switchView('player-view')" class="description" aria-label="Enter Simulation 1171">
+                    <a href="#" onclick="switchView('player-view')" class="description">
                         Simulation 1171 <span class="link-arrow">→</span>
                     </a>
-                    <a href="#" onclick="switchView('vlog-view')" class="description" aria-label="Enter Simulation 1895">
+                    <a href="#" onclick="switchView('vlog-view')" class="description">
                         Simulation 1895 <span class="link-arrow">→</span>
+                    </a>
+                    <a href="#" onclick="switchView('library-view')" class="description">
+                        Simulation 3066 <span class="link-arrow">→</span>
                     </a>
                 </div>
             </div>
@@ -40,7 +42,6 @@
             <div class="hero-image-right">
                 <img src="images/simulation-scales.jpg" alt="Visual representation of simulation scales">
             </div>
-            
         </div>
     </section>
 
@@ -48,7 +49,6 @@
     <section id="player-view" class="player-body hidden-view">
         <div class="player-center-wrapper">
             <div id="music-player-container">
-                
                 <div class="player-visuals">
                     <div class="album-art-large"></div> 
                 </div>
@@ -80,8 +80,11 @@
                 </div>
 
                 <div style="margin-top: 30px; display: flex; flex-direction: column; gap: 10px; align-items: center;">
-                    <a href="#" onclick="switchView('vlog-view')" class="back-link">Simulation 1895 &rarr;</a>
-                    <a href="#" onclick="switchView('home-view')" class="back-link" style="opacity: 0.5; font-size: 0.8rem;">&larr; Return to Base Simulation 724</a>
+                    <div style="display: flex; gap: 20px;">
+                        <a href="#" onclick="switchView('vlog-view')" class="back-link">1895 →</a>
+                        <a href="#" onclick="switchView('library-view')" class="back-link">3066 →</a>
+                    </div>
+                    <a href="#" onclick="switchView('home-view')" class="back-link" style="opacity: 0.5; font-size: 0.8rem;">&larr; Return to Base (724)</a>
                 </div>
             </div>
         </div>
@@ -91,20 +94,74 @@
     <section id="vlog-view" class="player-body hidden-view">
         <div class="vlog-wrapper">
             <h1 class="vlog-header">Low,</h1>
-
             <div id="vlog-feed">
                 <div style="color: var(--text-muted); font-family: var(--font-ui); margin-top: 20px;">
                     [ Awaiting data transmission... ]
                 </div>
             </div>
-
             <div class="vlog-footer" style="display: flex; flex-direction: column; gap: 10px;">
-                <a href="#" onclick="switchView('player-view')" class="back-link">Simulation 1171 &rarr;</a>
-                <a href="#" onclick="switchView('home-view')" class="back-link" style="opacity: 0.5; font-size: 0.8rem;">&larr; Return to Base Simulation 724</a>
+                <div style="display: flex; gap: 20px; justify-content: center;">
+                    <a href="#" onclick="switchView('player-view')" class="back-link">1171 →</a>
+                    <a href="#" onclick="switchView('library-view')" class="back-link">3066 →</a>
+                </div>
+                <a href="#" onclick="switchView('home-view')" class="back-link" style="opacity: 0.5; font-size: 0.8rem;">&larr; Return to Base (724)</a>
             </div>
         </div>
     </section>
 
+
+    <section id="library-view" class="vibe-body hidden-view">
+        <div class="library-container">
+            
+            <div id="bookshelf-content">
+                <h1 class="library-title">vibeArchive_</h1>
+
+                <div class="bookshelf-grid">
+                    <div class="book-item" onclick="openReader('pdfs/01-book.pdf')">
+                        <img src="images/covers/01-cover.jpg" alt="Book 1">
+                    </div>
+                    <div class="book-item" onclick="openReader('pdfs/02-book.pdf')">
+                        <img src="images/covers/02-cover.jpg" alt="Book 2">
+                    </div>
+                    <div class="book-item" onclick="openReader('pdfs/03-book.pdf')">
+                        <img src="images/covers/03-cover.jpg" alt="Book 3">
+                    </div>
+                    <div class="book-item" onclick="openReader('pdfs/04-book.pdf')">
+                        <img src="images/covers/04-cover.jpg" alt="Book 4">
+                    </div>
+                    <div class="book-item" onclick="openReader('pdfs/05-book.pdf')">
+                        <img src="images/covers/05-cover.jpg" alt="Book 5">
+                    </div>
+                    <div class="book-item" onclick="openReader('pdfs/06-book.pdf')">
+                        <img src="images/covers/06-cover.jpg" alt="Book 6">
+                    </div>
+                    <div class="book-item" onclick="openReader('pdfs/07-book.pdf')">
+                        <img src="images/covers/07-cover.jpg" alt="Book 7">
+                    </div>
+                    <div class="book-item" onclick="openReader('pdfs/08-book.pdf')">
+                        <img src="images/covers/08-cover.jpg" alt="Book 8">
+                    </div>
+                    <div class="book-item" onclick="openReader('pdfs/09-book.pdf')">
+                        <img src="images/covers/09-cover.jpg" alt="Book 9">
+                    </div>
+                </div>
+
+                <div class="simulation-nav">
+                    <a href="#" onclick="switchView('player-view')">1171 →</a>
+                    <a href="#" onclick="switchView('vlog-view')">1895 →</a>
+                </div>
+                <div style="margin-top: 20px;">
+                    <a href="#" onclick="switchView('home-view')" class="back-link" style="opacity: 0.5; font-size: 0.8rem;">&larr; Return to Base (724)</a>
+                </div>
+            </div>
+
+            <div id="pdf-reader-overlay" class="hidden-view">
+                <button class="close-reader-btn" onclick="closeReader()">Close Book ✕</button>
+                <iframe id="pdf-frame" src="" type="application/pdf"></iframe>
+            </div>
+
+        </div>
+    </section>
 
     <audio id="vibe-audio" preload="auto"></audio>
     
