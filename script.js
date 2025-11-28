@@ -1,4 +1,6 @@
-// --- ALIEN CANVAS CLOCK LOGIC ---
+// ==========================================
+// 1. ALIEN CANVAS CLOCK LOGIC
+// ==========================================
 (function () {
     const canvas = document.getElementById('digital-clock');
     if (!canvas) return; // Safely exit if not on homepage
@@ -85,8 +87,7 @@
         const hh = String(now.getHours()).padStart(2, '0');
         const mm = String(now.getMinutes()).padStart(2, '0');
         const ss = String(now.getSeconds()).padStart(2, '0');
-        const timeStr = hh + mm + ss;
-
+        
         const w = canvas.width / (window.devicePixelRatio || 1);
         const h = canvas.height / (window.devicePixelRatio || 1);
         ctx.clearRect(0, 0, w, h);
@@ -99,7 +100,7 @@
         const y = (h - boxH) / 2;
 
         for (let i = 0; i < cols; i++) {
-            const digit = parseInt(timeStr[i], 10);
+            const digit = parseInt((hh + mm + ss)[i], 10);
             const instr = glyphCache[digit];
             const hue = 40 + (i * 20) % 360;
             const color = `hsl(${hue} 90% 50%)`; 
@@ -123,7 +124,9 @@
 })();
 
 
-// --- IMAGE INTERACTIVITY ---
+// ==========================================
+// 2. HOMEPAGE IMAGE INTERACTIVITY
+// ==========================================
 const flashImages = [
     'flash-01.jpg', 'flash-02.jpg', 'flash-03.jpg', 'flash-04.jpg', 
     'flash-05.jpg', 'flash-06.jpg', 'flash-07.jpg', 'flash-08.jpg',
@@ -163,7 +166,8 @@ if (vibeWorld) {
     });
 }
 
-// IMAGE FLASH LOGIC
+// Image Flash Logic
+// Targets the new '.hero-image-right' container or falls back to old one
 const mainImage = document.querySelector('.hero-image-right img') || document.querySelector('.hero-image img'); 
 let flashInterval; 
 let flashTimeout;
@@ -208,9 +212,11 @@ if (mainImage) {
 }
 
 
-// --- AUDIO PLAYER LOGIC ---
+// ==========================================
+// 3. AUDIO PLAYER LOGIC
+// ==========================================
 const playlist = [
-    // 🔑 FINAL CORRECT RELATIVE PATH: Since your folders are now clean, use the simple path.
+    // 🔑 CORRECT RELATIVE PATH: Use this for both Local Live Server AND GitHub
     { name: "Track 01", artist: "", src: "audio/01-track.wav" },
     { name: "Track 02", artist: "", src: "audio/02-track.wav" },
     { name: "Track 03", artist: "", src: "audio/03-track.wav" },
@@ -269,10 +275,10 @@ function loadTrack(index, autoPlay = true) {
         audio.play().catch(e => {
             if (e.name !== 'AbortError') console.error(`Playback failed:`, e);
         });
-        playPauseBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>'; // Pause
+        playPauseBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>'; // Pause Icon
     } else {
         audio.pause();
-        playPauseBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>'; // Play
+        playPauseBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>'; // Play Icon
     }
 }
 
@@ -281,10 +287,10 @@ function togglePlayback() {
         audio.play().catch(e => {
             if (e.name !== 'AbortError') console.error("Playback failed:", e);
         });
-        playPauseBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>'; 
+        playPauseBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>'; // Pause Icon
     } else {
         audio.pause();
-        playPauseBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>'; 
+        playPauseBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>'; // Play Icon
     }
 }
 
@@ -313,111 +319,54 @@ function initializePlayer() {
     }
 }
 
-// ==========================================
-// VLOG PAGE LOGIC (Note App Functionality)
-// ==========================================
-const defaultVlogs = [
-    { id: 1, title: "VLOG 001: CYBERNETIC WHISPERS", date: "2025-11-28", text: "Exploring the echoes of data within the neural network. The interface between mind and machine is blurring.", image: null },
-    { id: 2, title: "VLOG 002: NEURAL NETWORK DREAMS", date: "2025-11-26", text: "A deep dive into the generative processes of the simulation. Patterns emerge from chaos.", image: null },
-    { id: 3, title: "VLOG 003: CHRONOS DRIFT", date: "2025-11-24", text: "Reflecting on time dilation within the vibeWorld simulation. Seconds feel like years.", image: null }
-];
 
+// ==========================================
+// 4. VLOG PAGE LOGIC (Click-to-Expand)
+// ==========================================
 function initializeVlog() {
     const feedContainer = document.getElementById('vlog-feed');
-    const saveBtn = document.getElementById('save-vlog-btn');
-    const fileInput = document.getElementById('vlog-image');
-    const fileNameSpan = document.getElementById('file-name');
-
     if (!feedContainer) return; 
 
-    let vlogs = JSON.parse(localStorage.getItem('vibeWorldVlogs'));
-    if (!vlogs || vlogs.length === 0) {
-        vlogs = defaultVlogs;
-        localStorage.setItem('vibeWorldVlogs', JSON.stringify(vlogs));
-    }
+    // Fetch the JSON file
+    fetch('content/vlogs.json')
+        .then(response => {
+            if (!response.ok) throw new Error("Signal lost...");
+            return response.json();
+        })
+        .then(vlogs => {
+            if (vlogs.length === 0) {
+                feedContainer.innerHTML = `<div style="color: #555; font-family: 'Inter'; margin-top: 20px;">[ No entries found in the archives. ]</div>`;
+                return;
+            }
 
-    function renderVlogs() {
-        feedContainer.innerHTML = '';
-        vlogs.forEach(vlog => {
-            const dateObj = new Date(vlog.date);
-            const dateStr = dateObj.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+            feedContainer.innerHTML = '';
+            vlogs.forEach(vlog => {
+                const dateObj = new Date(vlog.date + "T12:00:00");
+                const dateStr = dateObj.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 
-            const entryHTML = `
-                <div class="vlog-entry">
-                    <button class="delete-btn" onclick="deleteVlog(${vlog.id})">×</button>
-                    <h2 class="entry-title">${vlog.title}</h2>
-                    <span class="entry-date">${dateStr}</span>
-                    <p class="entry-body">${vlog.text}</p>
-                    ${vlog.image ? `<img src="${vlog.image}" class="entry-image">` : ''}
-                </div>
-            `;
-            feedContainer.insertAdjacentHTML('beforeend', entryHTML);
+                // KEY FEATURE: onclick toggle
+                const entryHTML = `
+                    <div class="vlog-entry" onclick="this.classList.toggle('active')">
+                        <h2 class="entry-title">${vlog.title}</h2>
+                        <span class="entry-date">${dateStr}</span>
+                        
+                        <p class="entry-body">${vlog.text}</p>
+                        ${vlog.image ? `<img src="${vlog.image}" class="entry-image">` : ''}
+                    </div>
+                `;
+                feedContainer.insertAdjacentHTML('beforeend', entryHTML);
+            });
+        })
+        .catch(error => {
+            console.error('Error loading vlogs:', error);
+            feedContainer.innerHTML = `<div style="color: #555; font-family: 'Inter'; margin-top: 20px;">[ Connection to archive failed. ]</div>`;
         });
-    }
-
-    fileInput.addEventListener('change', function() {
-        if (this.files && this.files.length > 0) {
-            fileNameSpan.textContent = this.files[0].name;
-        }
-    });
-
-    saveBtn.addEventListener('click', () => {
-        const title = document.getElementById('vlog-title').value;
-        const date = document.getElementById('vlog-date').value;
-        const text = document.getElementById('vlog-text').value;
-        const file = fileInput.files[0];
-
-        if (!title || !text) {
-            alert("Please enter a title and content.");
-            return;
-        }
-
-        const newVlog = {
-            id: Date.now(), 
-            title: title,
-            date: date || new Date().toISOString().split('T')[0],
-            text: text,
-            image: null
-        };
-
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                newVlog.image = e.target.result;
-                saveAndRender(newVlog);
-            };
-            reader.readAsDataURL(file);
-        } else {
-            saveAndRender(newVlog);
-        }
-    });
-
-    function saveAndRender(newVlog) {
-        vlogs.unshift(newVlog);
-        localStorage.setItem('vibeWorldVlogs', JSON.stringify(vlogs));
-        renderVlogs();
-        
-        document.getElementById('vlog-title').value = '';
-        document.getElementById('vlog-text').value = '';
-        fileInput.value = '';
-        fileNameSpan.textContent = "No file chosen";
-    }
-
-    renderVlogs();
 }
 
-window.deleteVlog = function(id) {
-    if(confirm("Delete this memory?")) {
-        let vlogs = JSON.parse(localStorage.getItem('vibeWorldVlogs'));
-        vlogs = vlogs.filter(v => v.id !== id);
-        localStorage.setItem('vibeWorldVlogs', JSON.stringify(vlogs));
-        location.reload(); 
-    }
-};
 
 // --- INITIALIZE ALL ---
 document.addEventListener('DOMContentLoaded', () => {
-    // Preload Images
+    // Preload Images for Homepage
     for (let i = 0; i < flashImages.length; i++) {
         let img = new Image();
         img.src = flashImages[i];
