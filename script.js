@@ -36,14 +36,20 @@ function openReader(pdfPath) {
     
     if(overlay && frame) {
         let params = "";
-
-        // LOGIC: Custom Zoom for Book 01 vs Others
-        if (pdfPath.includes('01-book')) {
-            // Book 01: 10% zoom out (90% scale)
-            params = "#page=1&zoom=90&pagemode=none&scrollbar=0&toolbar=0&navpanes=0";
+        
+        // Check if user is on Mobile (Screen narrower than 768px)
+        if (window.innerWidth <= 768) {
+            // MOBILE: Force Single Page, Fit Width (Enables Scrolling)
+            params = "#page=1&view=FitH&pagemode=none&scrollbar=1&toolbar=0&navpanes=0";
         } else {
-            // All others: 50% zoom out (50% scale)
-            params = "#page=1&zoom=50&pagemode=none&scrollbar=0&toolbar=0&navpanes=0";
+            // DESKTOP: Keep the "Book" Aesthetic (Two Page, Zoomed Out)
+            if (pdfPath.includes('01-book')) {
+                // Book 01: 10% zoom out (90% scale)
+                params = "#page=1&view=TwoColumn&zoom=90&pagemode=none&scrollbar=0&toolbar=0&navpanes=0";
+            } else {
+                // All others: 50% zoom out (50% scale)
+                params = "#page=1&view=TwoColumn&zoom=50&pagemode=none&scrollbar=0&toolbar=0&navpanes=0";
+            }
         }
         
         frame.src = pdfPath + params; 
@@ -193,7 +199,6 @@ function closeReader() {
     if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', startClock); } else startClock();
 })();
 
-
 // ==========================================
 // 4. IMAGE INTERACTIVITY
 // ==========================================
@@ -237,7 +242,7 @@ if (vibeWorld) {
 }
 
 // Image Flash Logic
-const mainImage = document.querySelector('.hero-image-right img'); 
+const mainImage = document.querySelector('.hero-image-right img') || document.querySelector('.hero-image img'); 
 let flashInterval; 
 let flashTimeout;
 

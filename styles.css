@@ -146,7 +146,6 @@ body {
     font-weight: 600;
     font-size: 0.9rem;
     letter-spacing: 0.3em;
-    /* text-transform: uppercase; REMOVED to allow lowercase */
     margin-bottom: 50px;
     color: var(--accent-color);
     opacity: 0.6;
@@ -170,6 +169,8 @@ body {
     cursor: pointer;
     max-width: 160px;
     margin: 0 auto;
+    /* Aspect Ratio for uniform size */
+    aspect-ratio: 2 / 3;
 }
 
 .book-item:hover {
@@ -180,9 +181,7 @@ body {
 
 .book-item img {
     width: 100%;
-    height: auto;
-    display: block;
-    aspect-ratio: 3 / 4;
+    height: 100%;
     object-fit: cover;
     filter: brightness(0.8);
     transition: filter 0.3s ease;
@@ -190,14 +189,23 @@ body {
 
 .book-item:hover img { filter: brightness(1); }
 
-/* PDF Reader Overlay */
+/* PDF Reader Overlay (UPDATED FOR MOBILE SCROLL) */
 #pdf-reader-overlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(0, 0, 0, 0.95); z-index: 1000;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     animation: fadeIn 0.5s ease;
+    /* IMPORTANT: Enables scrolling on iOS Safari */
+    -webkit-overflow-scrolling: touch;
+    overflow-y: auto;
 }
-#pdf-frame { width: 90%; height: 85%; border: none; border-radius: 8px; box-shadow: 0 0 50px rgba(255,255,255,0.1); }
+#pdf-frame { 
+    width: 90%; height: 85%; 
+    border: none; border-radius: 8px; 
+    box-shadow: 0 0 50px rgba(255,255,255,0.1);
+    /* IMPORTANT: Prevents iframe collapse on mobile */
+    min-height: 80vh;
+}
 .close-reader-btn { margin-bottom: 15px; background: transparent; border: 1px solid rgba(255,255,255,0.3); color: #fff; padding: 8px 20px; border-radius: 20px; cursor: pointer; font-family: var(--font-ui); text-transform: uppercase; letter-spacing: 0.1em; transition: all 0.3s; }
 .close-reader-btn:hover { background: #fff; color: #000; }
 
