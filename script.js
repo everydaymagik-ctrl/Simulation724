@@ -37,25 +37,24 @@ function openReader(pdfPath) {
     if(overlay && frame) {
         let params = "";
         
-        // Standardize params to ensure mobile behaves
+        // 📱 MOBILE LOGIC:
+        // Strip all parameters. Allow native mobile PDF viewer to handle scroll/zoom naturally.
         if (window.innerWidth <= 768) {
-            // Mobile: Simple view, let the iframe scroll naturally
-            params = "#toolbar=0&navpanes=0&scrollbar=1&view=FitH";
+            params = ""; 
         } else {
-            // DESKTOP: Custom Zoom Logic
+            // 🖥️ DESKTOP LOGIC:
+            // Apply specific zoom and layout locks for a cleaner desktop experience.
             if (pdfPath.includes('01-book')) {
-                // Book 01: 10% zoom out (90% scale)
-                params = "#page=1&view=TwoColumn&zoom=90&pagemode=none&scrollbar=0&toolbar=0&navpanes=0";
+                params = "#page=1&zoom=90&pagemode=none&scrollbar=0&toolbar=0&navpanes=0";
             } else {
-                // All others: 50% zoom out (50% scale)
-                params = "#page=1&view=TwoColumn&zoom=50&pagemode=none&scrollbar=0&toolbar=0&navpanes=0";
+                params = "#page=1&zoom=50&pagemode=none&scrollbar=0&toolbar=0&navpanes=0";
             }
         }
         
         frame.src = pdfPath + params; 
         overlay.classList.remove('hidden-view');
         
-        // LOCK BODY SCROLL
+        // Lock background scroll
         document.body.classList.add('no-scroll');
     }
 }
@@ -68,10 +67,11 @@ function closeReader() {
         overlay.classList.add('hidden-view'); 
         frame.src = ""; 
         
-        // UNLOCK BODY SCROLL
+        // Unlock background scroll
         document.body.classList.remove('no-scroll');
     }
 }
+
 
 // ==========================================
 // 3. ALIEN CANVAS CLOCK LOGIC
