@@ -1,4 +1,4 @@
-// --- ALIEN CANVAS CLOCK LOGIC (Functional and Complex) ---
+// --- ALIEN CANVAS CLOCK LOGIC ---
 (function () {
     const canvas = document.getElementById('digital-clock');
     const sr = document.getElementById('digital-clock-hidden');
@@ -126,8 +126,6 @@
 
 
 // --- NEW INTERACTIVITY ---
-
-// 1. Image Pre-loading & Source Array
 const flashImages = [
     'flash-01.jpg', 'flash-02.jpg', 'flash-03.jpg', 'flash-04.jpg', 
     'flash-05.jpg', 'flash-06.jpg', 'flash-07.jpg', 'flash-08.jpg',
@@ -156,22 +154,18 @@ const flashImages = [
     'flash-97.jpg', 'flash-98.jpg'
 ];
 
-// Pre-load all images when the page opens to prevent alt text errors during flash
 window.onload = function() {
     for (let i = 0; i < flashImages.length; i++) {
         let img = new Image();
         img.src = flashImages[i];
     }
-    // Automatically initialize player if elements exist (i.e., on player.html)
     if (typeof initializePlayer === 'function') {
         initializePlayer();
     }
 }
 
 
-// 2. Text Hover (VibeWorld Color Change)
 const vibeWorld = document.querySelector('.sub-title');
-
 if (vibeWorld) {
     vibeWorld.addEventListener('mouseover', function() {
         vibeWorld.style.color = '#FF0000'; 
@@ -182,7 +176,6 @@ if (vibeWorld) {
     });
 }
 
-// 3. Image Flash Swap Logic (Smoother and Faster)
 const mainImage = document.querySelector('.hero-image img'); 
 let flashInterval; 
 let flashTimeout;
@@ -236,9 +229,8 @@ if (mainImage) {
 }
 
 
-// 5. PLAYLIST MANAGER & CONTROL LOGIC (Used on player.html only)
+// 5. PLAYLIST MANAGER & CONTROL LOGIC
 const playlist = [
-    // 🔑 FINAL FIX: Corrected file names and added the 'audio/' path 
     { name: "Track 01", artist: "", src: "audio/01-track.wav" },
     { name: "Track 02", artist: "", src: "audio/02-track.wav" },
     { name: "Track 03", artist: "", src: "audio/03-track.wav" },
@@ -250,10 +242,42 @@ const playlist = [
     { name: "Track 09", artist: "", src: "audio/09-track.wav" }
 ]; 
 
-// --- IMPROVEMENT: Declaring all related variables in one place ---
 let currentTrackIndex = 0;
-let audio, songTitle, songArtist, playPauseBtn, nextBtn, prevBtn, trackButtons;
+let audio, songTitle, songArtist, playPauseBtn, nextBtn, prevBtn;
+let progressBarFill, progressContainer, trackInfo; 
 
+// --- TIME FORMATTING UTILITY ---
+function formatTime(secs) {
+    if (!isFinite(secs) || secs < 0) return "0:00"; 
+    const minutes = Math.floor(secs / 60);
+    const seconds = Math.floor(secs % 60);
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+}
+
+// --- UPDATE TIME/PROGRESS BAR LOGIC ---
+function updateTimeDisplay() {
+    const currentTime = audio.currentTime;
+    const duration = audio.duration || 0;
+
+    // Update the progress bar width
+    const progressPercent = (currentTime / duration) * 100;
+    progressBarFill.style.width = `${progressPercent}%`;
+
+    // Update the time counter text (track-info element)
+    trackInfo.textContent = `${formatTime(currentTime)} / ${formatTime(duration)}`;
+}
+
+// --- SEEKING LOGIC ---
+function seek(e) {
+    if (!audio.duration) return; 
+    
+    const width = this.clientWidth;
+    const clickX = e.offsetX;
+    const duration = audio.duration;
+    
+    // Set the new playback time based on click position
+    audio.currentTime = (clickX / width) * duration;
+}
 
 function loadTrack(index, autoPlay = true) {
     if (index < 0) {
@@ -266,20 +290,21 @@ function loadTrack(index, autoPlay = true) {
     
     audio.src = track.src;
     songTitle.textContent = track.name;
-    // IMPROVEMENT: Set text content to track artist property
     songArtist.textContent = track.artist; 
 
-    if (trackButtons) {
-        trackButtons.forEach((btn, i) => {
-            btn.classList.toggle('active', i === index);
-        });
-    }
-    
+    // Reset Time Display
+    trackInfo.textContent = "0:00 / 0:00"; 
+    progressBarFill.style.width = '0%';
+
     audio.load();
 
     if (autoPlay) {
-        // IMPROVEMENT: Use the track name in the console log for easier debugging
-        audio.play().catch(e => console.log(`Playback failed for ${track.name} (Browser Policy):`, e)); 
+        // 🧼 CLEAN ERROR HANDLING: Ignore "AbortError" (Interrupted by user clicking next)
+        audio.play().catch(e => {
+            if (e.name !== 'AbortError') {
+                console.error(`Playback failed for ${track.name}:`, e);
+            }
+        });
         playPauseBtn.textContent = 'Pause';
     } else {
         audio.pause();
@@ -289,7 +314,12 @@ function loadTrack(index, autoPlay = true) {
 
 function togglePlayback() {
     if (audio.paused) {
-        audio.play().catch(e => console.log(`Playback failed on toggle (Browser Policy):`, e));
+        // 🧼 CLEAN ERROR HANDLING HERE TOO
+        audio.play().catch(e => {
+            if (e.name !== 'AbortError') {
+                console.error("Playback failed:", e);
+            }
+        });
         playPauseBtn.textContent = 'Pause';
     } else {
         audio.pause();
@@ -297,46 +327,36 @@ function togglePlayback() {
     }
 }
 
-// Global function to be called by player.html on load
 function initializePlayer() {
-    // Look up elements (safely done here)
     audio = document.getElementById('vibe-audio');
     songTitle = document.querySelector('.song-title');
-    // IMPROVEMENT: Correctly targeting the class for song artist
     songArtist = document.querySelector('.song-artist'); 
     playPauseBtn = document.getElementById('play-pause-btn');
     nextBtn = document.getElementById('next-btn');
     prevBtn = document.getElementById('prev-btn');
 
-    // Build track buttons array
-    trackButtons = [];
-    for (let i = 1; i <= 9; i++) {
-        const btn = document.getElementById(`track-${i}`);
-        if (btn) trackButtons.push(btn);
-    }
-    
-    // Only run if the player controls exist on the page
+    // Progress element lookups
+    progressBarFill = document.querySelector('.progress-bar-fill');
+    progressContainer = document.querySelector('.progress-bar-container');
+    trackInfo = document.querySelector('.track-info');
+
     if (audio && playPauseBtn) {
-        // FINAL FIX: Source starts empty to prevent autoload error
         audio.src = ''; 
         
-        // Setup Control Listeners
         playPauseBtn.addEventListener('click', togglePlayback);
         nextBtn.addEventListener('click', () => loadTrack(currentTrackIndex + 1));
         prevBtn.addEventListener('click', () => loadTrack(currentTrackIndex - 1));
         audio.addEventListener('ended', () => loadTrack(currentTrackIndex + 1));
 
-        // Setup Numerical Button Listeners
-        trackButtons.forEach((btn, index) => {
-            btn.addEventListener('click', () => {
-                loadTrack(index, true); 
-            });
-        });
-        
-        // 🚀 CRITICAL FIX: Initialize the player with the first track
-        loadTrack(currentTrackIndex, false); // Load track 0, but DO NOT autoplay
+        // Time/Progress Bar Listeners
+        audio.addEventListener('timeupdate', updateTimeDisplay);
+        audio.addEventListener('loadedmetadata', updateTimeDisplay);
+        progressContainer.addEventListener('click', seek);
+
+        // Initialize first track without autoplay
+        loadTrack(currentTrackIndex, false); 
 
     } else {
-        console.error("Audio playback elements not found. Check player.html IDs (vibe-audio, play-pause-btn, song-title).");
+        console.error("Audio playback elements not found. Check player.html IDs.");
     }
 }
