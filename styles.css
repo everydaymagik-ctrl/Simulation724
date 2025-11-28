@@ -64,7 +64,7 @@ body {
     color: var(--text-main);
 }
 
-/* Alien Clock (FIXED VISIBILITY) */
+/* Alien Clock */
 .clock-container-left {
     display: block;
     margin: 30px 0; 
@@ -72,33 +72,56 @@ body {
 }
 
 #digital-clock {
-    height: 50px; /* Enforced height */
+    height: 50px; 
     width: 100%;
-    max-width: 350px; /* Prevent it from stretching too far */
-    filter: invert(1); /* Turns the black script drawing WHITE */
+    max-width: 350px; 
+    filter: invert(1); 
     display: block;
 }
 
-/* Footer Link */
+/* --- Simulation Navigation Links (UPDATED) --- */
 .footer-link-container {
     text-align: left;
-    margin-top: 20px;
+    margin-top: 40px;
+    display: flex;
+    flex-direction: column; /* Stacks links vertically */
+    gap: 15px; /* Space between the two links */
 }
 
 .description {
     font-family: var(--font-ui);
     color: var(--text-muted);
-    font-size: 1.1rem;
-    text-decoration: underline;
-    text-underline-offset: 6px;
-    transition: color 0.3s ease;
-    letter-spacing: 0.05em;
+    font-size: 1rem;
+    text-decoration: none; /* Removed underline for cleaner look */
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    width: fit-content;
 }
 
-.description:hover { color: var(--text-main); }
+.description:hover {
+    color: var(--text-main);
+    letter-spacing: 0.15em; /* Subtle expansion effect */
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+.link-arrow {
+    opacity: 0;
+    transform: translateX(-10px);
+    transition: all 0.3s ease;
+    margin-left: 10px;
+    font-size: 1.2rem;
+}
+
+.description:hover .link-arrow {
+    opacity: 1;
+    transform: translateX(0);
+}
 
 
-/* --- Right Image Block (Tall Portrait) --- */
+/* --- Right Image Block --- */
 .hero-image-right {
     flex: 1; 
     height: 70vh; 
@@ -155,10 +178,11 @@ body {
     .clock-container-left, .footer-link-container {
         text-align: center;
         margin: 20px auto;
+        align-items: center;
     }
     
     #digital-clock {
-        margin: 0 auto; /* Center clock on mobile */
+        margin: 0 auto; 
     }
 
     .hero-image-right {
@@ -174,7 +198,7 @@ body {
 
 
 /* =========================================
-   3. PLAYER PAGE STYLES (Glassmorphism)
+   3. PLAYER & VLOG PAGE STYLES (Glassmorphism)
    ========================================= */
 
 .player-body {
